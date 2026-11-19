@@ -1,0 +1,1454 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🚀 Веб-квест: Рятуємо Медіацентр! | Інформатика 5 клас</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@500;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        /* Базові стилі та анімації для гейміфікованого інтерфейсу 5 класу */
+        body {
+            font-family: 'Nunito', sans-serif;
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 45%, #06b6d4 100%);
+            min-height: 100vh;
+            color: #1e293b;
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.96);
+            backdrop-filter: blur(12px);
+            border: 3px solid rgba(255, 255, 255, 0.6);
+            box-shadow: 0 20px 40px -15px rgba(15, 23, 42, 0.35);
+        }
+
+        .btn-3d {
+            transition: all 0.15s ease;
+            box-shadow: 0 5px 0 rgba(0, 0, 0, 0.2);
+        }
+        .btn-3d:active:not(:disabled) {
+            transform: translateY(4px);
+            box-shadow: 0 1px 0 rgba(0, 0, 0, 0.2);
+        }
+
+        @keyframes pulseGlow {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.03); }
+        }
+        .animate-glow {
+            animation: pulseGlow 2.5s infinite ease-in-out;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-6px); }
+            75% { transform: translateX(6px); }
+        }
+        .animate-shake {
+            animation: shake 0.35s ease-in-out;
+        }
+
+        /* Стилі візуального симулятора PowerPoint */
+        .ppt-ribbon-tab {
+            cursor: pointer;
+            padding: 6px 12px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            border-radius: 8px 8px 0 0;
+            transition: all 0.2s;
+            user-select: none;
+        }
+        .ppt-ribbon-tab.active {
+            background-color: #ffffff;
+            color: #c2410c;
+            box-shadow: 0 -2px 5px rgba(0,0,0,0.05);
+        }
+        .ppt-ribbon-tab:not(.active) {
+            color: #ffffff;
+            background-color: rgba(255, 255, 255, 0.15);
+        }
+        .ppt-ribbon-tab:not(.active):hover {
+            background-color: rgba(255, 255, 255, 0.28);
+        }
+
+        .ppt-tool-btn {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 6px 10px;
+            border-radius: 10px;
+            border: 2px solid #e2e8f0;
+            background: #f8fafc;
+            font-size: 0.78rem;
+            font-weight: 800;
+            color: #334155;
+            transition: all 0.15s;
+            cursor: pointer;
+        }
+        .ppt-tool-btn:hover {
+            border-color: #f97316;
+            background: #fff7ed;
+            transform: translateY(-1px);
+        }
+        .ppt-tool-btn.selected {
+            border-color: #ea580c;
+            background: #ffedd5;
+            color: #9a3412;
+            box-shadow: 0 0 0 2px rgba(234, 88, 12, 0.25);
+        }
+
+        /* Ефект художнього тексту WordArt для симулятора */
+        .wordart-style {
+            font-weight: 900;
+            background: linear-gradient(180deg, #facc15 0%, #f97316 55%, #dc2626 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            filter: drop-shadow(2px 3px 0px rgba(30, 41, 59, 0.35));
+            letter-spacing: 1px;
+        }
+
+        /* Лазерний вказівник */
+        .laser-dot {
+            width: 18px;
+            height: 18px;
+            background: radial-gradient(circle, #ffffff 10%, #ef4444 45%, rgba(239, 68, 68, 0) 75%);
+            border-radius: 50%;
+            box-shadow: 0 0 12px 4px rgba(239, 68, 68, 0.85);
+            pointer-events: none;
+            position: absolute;
+            transform: translate(-50%, -50%);
+            z-index: 50;
+        }
+    </style>
+</head>
+<body class="p-3 sm:p-6 flex flex-col items-center justify-start">
+
+    <!-- ВЕРХНЯ ПАНЕЛЬ ПРОГРЕСУ (прихована на стартовому екрані) -->
+    <header id="hud-bar" class="hidden w-full max-w-4xl glass-card rounded-2xl p-3 sm:p-4 mb-5 sticky top-2 z-40">
+        <div class="flex flex-wrap items-center justify-between gap-2 mb-2">
+            <div class="flex items-center gap-2">
+                <span class="text-2xl">🛡️</span>
+                <div>
+                    <div id="hud-student-info" class="text-xs sm:text-sm font-extrabold text-indigo-700">Агент: Учень (5 клас)</div>
+                    <div class="text-sm sm:text-base font-black text-slate-800">Рівень <span id="hud-level" class="text-orange-600">1</span> з 12</div>
+                </div>
+            </div>
+            <div class="flex items-center gap-3">
+                <div class="bg-amber-100 border-2 border-amber-400 px-3 py-1 rounded-xl flex items-center gap-1.5">
+                    <span class="text-lg">⭐</span>
+                    <span class="text-sm sm:text-base font-black text-amber-800">Бали: <span id="hud-score">0</span> / 12</span>
+                </div>
+            </div>
+        </div>
+        <!-- Шкала прогресу -->
+        <div class="w-full bg-slate-200 rounded-full h-3.5 overflow-hidden p-0.5">
+            <div id="hud-progress" class="bg-gradient-to-r from-emerald-400 via-teal-500 to-indigo-600 h-full rounded-full transition-all duration-500" style="width: 8%;"></div>
+        </div>
+    </header>
+
+    <!-- ГОЛОВНИЙ КОНТЕЙНЕР -->
+    <main class="w-full max-w-4xl">
+
+        <!-- ЕКРАН 1: СТАРТ ТА ПРОБЛЕМНА СИТУАЦІЯ -->
+        <section id="start-screen" class="glass-card rounded-3xl p-5 sm:p-8 text-center">
+            <div class="inline-flex items-center gap-2 bg-rose-100 text-rose-700 border-2 border-rose-300 px-4 py-1.5 rounded-full font-black text-xs sm:text-sm mb-4 animate-bounce">
+                🚨 ТРИВОГА В ШКІЛЬНОМУ МЕДІАЦЕНТРІ! 🚨
+            </div>
+
+            <h1 class="text-2xl sm:text-4xl font-black text-slate-900 mb-4 leading-tight">
+                Місія: <span class="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-pink-600">Врятувати Презентацію!</span> 💻🚀
+            </h1>
+
+            <!-- Блок проблемної ситуації -->
+            <div class="bg-gradient-to-br from-indigo-50 to-cyan-50 border-2 border-indigo-200 rounded-2xl p-4 sm:p-6 mb-6 text-left shadow-inner">
+                <div class="flex flex-col sm:flex-row items-center gap-4">
+                    <div class="text-5xl sm:text-6xl shrink-0">👾💥</div>
+                    <p class="text-sm sm:text-base font-bold text-slate-700 leading-relaxed">
+                        <span class="text-rose-600 font-black">SOS!</span> Головний сервер Шкільного Медіацентру атакував <span class="bg-yellow-200 px-1.5 py-0.5 rounded font-black text-slate-900">Вірус-Хаос</span>! Усі файли важливих презентацій переплуталися, тексти збилися в купу, а доповідь для завтрашнього захисту проєктів перетворилася на суцільний безлад!
+                        <br><br>
+                        Щоб відновити систему та врятувати виступ, тобі потрібно пройти <span class="text-indigo-700 font-black">12 рівнів захисту</span> у нашому симуляторі редактора презентацій!
+                    </p>
+                </div>
+            </div>
+
+            <!-- Правила нарахування балів -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-6 text-left">
+                <div class="bg-emerald-50 border-2 border-emerald-300 rounded-2xl p-3 flex items-center gap-3">
+                    <span class="text-2xl">🥇</span>
+                    <div class="text-xs sm:text-sm font-bold text-emerald-900">Виконано з 1-ї спроби = <span class="font-black text-emerald-700">1 бал</span></div>
+                </div>
+                <div class="bg-amber-50 border-2 border-amber-300 rounded-2xl p-3 flex items-center gap-3">
+                    <span class="text-2xl">🥈</span>
+                    <div class="text-xs sm:text-sm font-bold text-amber-900">З 2-ї спроби (з підказкою) = <span class="font-black text-amber-700">0,5 бала</span></div>
+                </div>
+                <div class="bg-sky-50 border-2 border-sky-300 rounded-2xl p-3 flex items-center gap-3">
+                    <span class="text-2xl">🔑</span>
+                    <div class="text-xs sm:text-sm font-bold text-sky-900">Кожен рівень відкривається <span class="font-black text-sky-700">покроково</span></div>
+                </div>
+            </div>
+
+            <!-- Форма реєстрації учня -->
+            <div class="max-w-md mx-auto bg-white border-2 border-slate-200 rounded-2xl p-5 shadow-md">
+                <h2 class="text-lg font-black text-slate-800 mb-3">🪪 Картка кібер-рятувальника</h2>
+                <div class="space-y-3 text-left">
+                    <div>
+                        <label class="block text-xs font-extrabold text-slate-600 uppercase mb-1">Прізвище та Ім'я *</label>
+                        <input type="text" id="student-name" placeholder="Наприклад: Коваленко Олександр" class="w-full px-4 py-2.5 rounded-xl border-2 border-slate-300 focus:border-indigo-500 focus:outline-none font-bold text-slate-800">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-extrabold text-slate-600 uppercase mb-1">Твій клас *</label>
+                        <input type="text" id="student-class" placeholder="Наприклад: 5-А" class="w-full px-4 py-2.5 rounded-xl border-2 border-slate-300 focus:border-indigo-500 focus:outline-none font-bold text-slate-800">
+                    </div>
+                    <p id="start-error" class="hidden text-xs font-extrabold text-rose-600 bg-rose-50 p-2 rounded-lg border border-rose-200">
+                        ⚠️ Будь ласка, введи своє Прізвище, Ім'я та Клас, щоб розпочати місію!
+                    </p>
+                    <button onclick="startQuest()" class="w-full mt-2 bg-gradient-to-r from-orange-500 to-pink-500 hover:from-orange-600 hover:to-pink-600 text-white font-black text-base sm:text-lg py-3.5 px-6 rounded-2xl btn-3d animate-glow cursor-pointer">
+                        🚀 Розпочати квест!
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- ЕКРАН 2: ІГРОВИЙ ПРОЦЕС (ПОКРОКОВІ РІВНІ) -->
+        <section id="quest-screen" class="hidden space-y-5">
+
+            <!-- Картка поточного рівня -->
+            <div class="glass-card rounded-3xl p-4 sm:p-7">
+                <!-- Заголовок рівня -->
+                <div class="flex flex-wrap items-center justify-between gap-2 border-b-2 border-slate-100 pb-3 mb-4">
+                    <span id="level-badge" class="bg-indigo-600 text-white text-xs sm:text-sm font-black px-3.5 py-1 rounded-full">
+                        Рівень 1 / 12
+                    </span>
+                    <span id="attempt-badge" class="bg-emerald-100 text-emerald-800 text-xs font-extrabold px-3 py-1 rounded-full">
+                        🎯 Спроба 1 (на кону: 1 бал)
+                    </span>
+                </div>
+
+                <h2 id="level-title" class="text-xl sm:text-2xl font-black text-slate-900 mb-4">
+                    Заголовок рівня
+                </h2>
+
+                <!-- БЛОК 1: ТЕОРІЯ-КЛЮЧ -->
+                <div class="bg-gradient-to-r from-amber-50 via-yellow-50 to-orange-50 border-2 border-amber-300 rounded-2xl p-4 sm:p-5 mb-6">
+                    <div class="flex items-center gap-2 text-amber-800 font-black text-sm sm:text-base mb-2">
+                        <span class="text-xl">🔑</span> ТЕОРІЯ-КЛЮЧ (Підказка для злому захисту)
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
+                        <div id="theory-text" class="md:col-span-2 text-sm sm:text-base font-bold text-slate-700 leading-relaxed">
+                            <!-- Короткий текст теорії -->
+                        </div>
+                        <div id="theory-visual" class="bg-white rounded-xl p-3 border-2 border-amber-200 flex items-center justify-center shadow-sm">
+                            <!-- SVG ілюстрація / схема -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- БЛОК 2: ІНТЕРАКТИВНИЙ СИМУЛЯТОР ПРЕЗЕНТАЦІЙ -->
+                <div class="bg-slate-800 rounded-2xl overflow-hidden shadow-xl border-4 border-slate-700">
+                    <!-- Шапка вікна симулятора PowerPoint -->
+                    <div class="bg-gradient-to-r from-orange-600 to-red-600 px-3 pt-2 pb-0 text-white">
+                        <div class="flex items-center justify-between text-xs font-bold mb-2 opacity-95">
+                            <div class="flex items-center gap-2">
+                                <span>📊</span>
+                                <span id="sim-filename">Проєкт_5_клас.pptx — Редактор презентацій</span>
+                            </div>
+                            <div class="flex gap-1.5">
+                                <span class="w-3 h-3 rounded-full bg-amber-300 inline-block"></span>
+                                <span class="w-3 h-3 rounded-full bg-emerald-400 inline-block"></span>
+                                <span class="w-3 h-3 rounded-full bg-rose-300 inline-block"></span>
+                            </div>
+                        </div>
+                        <!-- Вкладки стрічки -->
+                        <div id="sim-tabs" class="flex flex-wrap gap-1 text-xs">
+                            <!-- Генерується динамічно -->
+                        </div>
+                    </div>
+
+                    <!-- Панель інструментів стрічки -->
+                    <div id="sim-ribbon" class="bg-slate-100 border-b-2 border-slate-300 p-2.5 sm:p-3 flex flex-wrap items-center gap-2 min-h-[64px]">
+                        <!-- Інструменти поточного рівня -->
+                    </div>
+
+                    <!-- Завдання всередині симулятора -->
+                    <div class="bg-indigo-900 text-white px-4 py-2.5 text-xs sm:text-sm font-extrabold flex items-center gap-2">
+                        <span class="text-lg">🛠️</span>
+                        <span id="task-instruction">Інструкція до завдання</span>
+                    </div>
+
+                    <!-- Робоче поле слайда -->
+                    <div id="sim-workspace" class="bg-slate-200 p-3 sm:p-6 flex flex-col items-center justify-center min-h-[270px] relative select-none">
+                        <!-- Інтерактивний слайд / середовище -->
+                    </div>
+                </div>
+
+                <!-- Повідомлення зворотного зв'язку (Помилка / Підказка / Успіх) -->
+                <div id="feedback-box" class="hidden mt-5 rounded-2xl p-4 font-bold text-sm sm:text-base border-2">
+                    <!-- Текст повідомлення -->
+                </div>
+
+                <!-- Кнопки дії внизу рівня -->
+                <div class="mt-5 flex flex-wrap items-center justify-end gap-3">
+                    <button id="check-btn" onclick="checkCurrentLevel()" class="w-full sm:w-auto bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-black text-base px-7 py-3.5 rounded-2xl btn-3d cursor-pointer">
+                        ✅ Перевірити завдання
+                    </button>
+                    <button id="next-btn" onclick="nextLevel()" class="hidden w-full sm:w-auto bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-black text-base px-7 py-3.5 rounded-2xl btn-3d cursor-pointer">
+                        ➡️ Наступний рівень
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- ЕКРАН 3: ФІНАЛЬНІ РЕЗУЛЬТАТИ ТА ВІДПРАВКА ВЧИТЕЛЮ -->
+        <section id="result-screen" class="hidden glass-card rounded-3xl p-5 sm:p-8 text-center">
+            <div class="text-6xl sm:text-7xl mb-3">🏆🎉</div>
+            <h2 class="text-2xl sm:text-4xl font-black text-slate-900 mb-2">
+                Місію завершено!
+            </h2>
+            <p id="result-subtitle" class="text-base sm:text-lg font-bold text-slate-600 mb-6">
+                Ти врятував презентацію Шкільного Медіацентру!
+            </p>
+
+            <!-- Підсумковий бал -->
+            <div class="max-w-sm mx-auto bg-gradient-to-br from-indigo-600 to-purple-700 text-white rounded-3xl p-6 mb-6 shadow-xl">
+                <div class="text-xs uppercase tracking-wider font-extrabold opacity-80 mb-1">Твій результат</div>
+                <div class="text-4xl sm:text-5xl font-black mb-1">
+                    <span id="final-score">0</span> <span class="text-2xl opacity-80">/ 12</span>
+                </div>
+                <div id="final-grade-text" class="text-sm font-extrabold text-amber-300 mt-1">
+                    Відмінний кібер-захисник!
+                </div>
+            </div>
+
+            <!-- Деталізація по 12 завданнях -->
+            <div class="bg-slate-50 border-2 border-slate-200 rounded-2xl p-4 mb-6 text-left">
+                <h3 class="text-sm font-black text-slate-700 uppercase mb-3">📊 Деталізація балів за рівнями:</h3>
+                <div id="results-breakdown" class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs sm:text-sm">
+                    <!-- Заповнюється автоматично -->
+                </div>
+            </div>
+
+            <!-- Блок відправки результатів на Formspree -->
+            <div class="max-w-md mx-auto bg-emerald-50 border-2 border-emerald-300 rounded-2xl p-5">
+                <p class="text-sm font-extrabold text-emerald-900 mb-3">
+                    📨 Натисни кнопку нижче, щоб надіслати свій результат учителю!
+                </p>
+                <button id="send-result-btn" onclick="submitResultsToTeacher()" class="w-full bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700 text-white font-black text-base sm:text-lg py-3.5 px-6 rounded-2xl btn-3d cursor-pointer">
+                    📤 Надіслати результат учителю
+                </button>
+                <div id="submit-status" class="hidden mt-3 text-sm font-extrabold p-3 rounded-xl"></div>
+            </div>
+
+            <button onclick="location.reload()" class="mt-6 text-xs sm:text-sm font-extrabold text-slate-500 hover:text-indigo-600 underline cursor-pointer">
+                🔄 Пройти квест ще раз
+            </button>
+        </section>
+
+    </main>
+
+    <script>
+        // =========================================================================
+        // ГЛОБАЛЬНИЙ СТАН КВЕСТУ
+        // =========================================================================
+        const state = {
+            studentName: '',
+            studentClass: '',
+            currentLevelIndex: 0, // 0 .. 11
+            attempts: 0,           // Спроби на поточному рівні (0, 1, 2)
+            totalScore: 0,
+            levelScores: [],       // Масив результатів по кожному рівню
+            levelCompleted: false,
+            simData: {}            // Локальний стан симулятора для поточного рівня
+        };
+
+        // =========================================================================
+        // БАЗА ДАНИХ 12 РІВНІВ (ТЕОРІЯ-КЛЮЧ + СИМУЛЯТОР POWERPOINT)
+        // =========================================================================
+        const levels = [
+            // ---------------------------------------------------------------------
+            // РІВЕНЬ 1: Що таке презентація та її основні об'єкти
+            // ---------------------------------------------------------------------
+            {
+                title: "1. Що таке слайдова презентація та її об'єкти? 🖼️",
+                theory: `
+                    <p><b>Комп'ютерна презентація</b> — це набір <b>слайдів</b> (слайдова презентація) або відеофільм (потокова), створений для виступу перед аудиторією.</p>
+                    <p class="mt-1.5">Основним об'єктом презентації є <b>слайд</b>, на якому можна розміщувати <b>текст, зображення, відео та звук</b>.</p>
+                `,
+                visualSVG: `
+                    <svg viewBox="0 0 180 110" class="w-full max-w-[170px] h-auto">
+                        <rect x="10" y="10" width="160" height="90" rx="10" fill="#eef2ff" stroke="#4f46e5" stroke-width="3"/>
+                        <rect x="25" y="22" width="130" height="16" rx="4" fill="#4f46e5"/>
+                        <text x="90" y="33" font-size="9" fill="#fff" text-anchor="middle" font-weight="bold">СЛАЙД ПРЕЗЕНТАЦІЇ</text>
+                        <rect x="25" y="46" width="60" height="40" rx="6" fill="#fde047" stroke="#eab308" stroke-width="2"/>
+                        <text x="55" y="69" font-size="9" fill="#854d0e" text-anchor="middle" font-weight="bold">📝 Текст</text>
+                        <rect x="95" y="46" width="60" height="40" rx="6" fill="#bae6fd" stroke="#0284c7" stroke-width="2"/>
+                        <text x="125" y="69" font-size="9" fill="#075985" text-anchor="middle" font-weight="bold">🖼️ Графіка</text>
+                    </svg>
+                `,
+                tabs: ["Основне", "Вставлення", "Показ слайдів"],
+                activeTab: "Основне",
+                instruction: "Вірус перемішав терміни! Клікни на 3 елементи, які є справжніми ОБ'ЄКТАМИ на слайді презентації:",
+                hint: "Подумай, що саме ти можеш розмістити на слайді: текст, картинку, звук чи клавіатуру з монітором?",
+                initSim: () => {
+                    state.simData = { selected: [] };
+                },
+                renderRibbon: () => `
+                    <div class="text-xs font-extrabold text-slate-600 flex items-center gap-2">
+                        <span>🔍 Інструмент:</span>
+                        <span class="bg-white px-2.5 py-1 rounded-lg border border-slate-300">Аналіз структури слайда</span>
+                    </div>
+                `,
+                renderWorkspace: () => {
+                    const items = [
+                        { id: 'text', label: '📝 Текстовий об’єкт', correct: true },
+                        { id: 'monitor', label: '🖥️ Монітор комп’ютера', correct: false },
+                        { id: 'image', label: '🖼️ Графічне зображення', correct: true },
+                        { id: 'keyboard', label: '⌨️ Клавіатура', correct: false },
+                        { id: 'sound', label: '🔊 Звук та відео', correct: true },
+                        { id: 'mouse', label: '🖱️ Комп’ютерна миша', correct: false }
+                    ];
+                    return `
+                        <div class="w-full max-w-lg bg-white rounded-2xl p-4 sm:p-5 shadow-md border-2 border-indigo-200">
+                            <div class="text-center font-black text-indigo-900 text-sm mb-3">Обери рівно 3 об'єкти слайда:</div>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                                ${items.map(item => {
+                                    const isSel = state.simData.selected.includes(item.id);
+                                    return `
+                                        <button onclick="toggleL1Item('${item.id}')" class="p-3 rounded-xl border-2 font-extrabold text-sm text-left transition cursor-pointer flex items-center justify-between ${isSel ? 'bg-indigo-600 text-white border-indigo-700 shadow-md' : 'bg-slate-50 text-slate-800 border-slate-200 hover:border-indigo-400'}">
+                                            <span>${item.label}</span>
+                                            <span>${isSel ? '✅' : '⬜'}</span>
+                                        </button>
+                                    `;
+                                }).join('')}
+                            </div>
+                        </div>
+                    `;
+                },
+                validate: () => {
+                    const sel = state.simData.selected;
+                    const correctIds = ['text', 'image', 'sound'];
+                    return sel.length === 3 && correctIds.every(id => sel.includes(id));
+                },
+                applySolution: () => {
+                    state.simData.selected = ['text', 'image', 'sound'];
+                }
+            },
+
+            // ---------------------------------------------------------------------
+            // РІВЕНЬ 2: Макет слайда
+            // ---------------------------------------------------------------------
+            {
+                title: "2. Макет (розмітка) слайда 📐",
+                theory: `
+                    <p><b>Макет слайда</b> — це схема розміщення текстових, графічних та інших об'єктів на слайді.</p>
+                    <p class="mt-1.5">Наприклад, для порівняння двох об'єктів зручно обрати макет <b>«Порівняння»</b> або <b>«Два об'єкти»</b>, а для першого слайда — <b>«Титульний слайд»</b>.</p>
+                `,
+                visualSVG: `
+                    <svg viewBox="0 0 180 100" class="w-full max-w-[170px] h-auto">
+                        <rect x="10" y="8" width="160" height="84" rx="8" fill="#fff" stroke="#0284c7" stroke-width="2.5"/>
+                        <rect x="22" y="16" width="136" height="14" rx="3" fill="#bae6fd" stroke="#0284c7" stroke-dasharray="3"/>
+                        <rect x="22" y="36" width="64" height="48" rx="4" fill="#f0f9ff" stroke="#0284c7" stroke-dasharray="3"/>
+                        <rect x="94" y="36" width="64" height="48" rx="4" fill="#f0f9ff" stroke="#0284c7" stroke-dasharray="3"/>
+                        <text x="90" y="98" font-size="8" fill="#0369a1" text-anchor="middle" font-weight="bold">Макет: Порівняння</text>
+                    </svg>
+                `,
+                tabs: ["Основне", "Вставлення", "Конструктор"],
+                activeTab: "Основне",
+                instruction: "На слайді потрібно порівняти Гепарда та Сокола. Обери на панелі «Макет» відповідний макет слайда:",
+                hint: "Подивись на кнопки макетів на панелі інструментів зверху: тобі потрібен макет, де є заголовок і дві колонки для порівняння!",
+                initSim: () => {
+                    state.simData = { layout: 'empty' };
+                },
+                renderRibbon: () => {
+                    const layouts = [
+                        { id: 'title', name: 'Титульний слайд', icon: '🏷️' },
+                        { id: 'empty', name: 'Пустий слайд', icon: '⬜' },
+                        { id: 'compare', name: 'Порівняння', icon: '⚖️' },
+                        { id: 'only_title', name: 'Лише заголовок', icon: '➖' }
+                    ];
+                    return `
+                        <span class="text-xs font-black text-slate-600 mr-1">Макет:</span>
+                        ${layouts.map(l => `
+                            <button onclick="setL2Layout('${l.id}')" class="ppt-tool-btn ${state.simData.layout === l.id ? 'selected' : ''}">
+                                <span class="text-base">${l.icon}</span>
+                                <span>${l.name}</span>
+                            </button>
+                        `).join('')}
+                    `;
+                },
+                renderWorkspace: () => {
+                    const l = state.simData.layout;
+                    if (l === 'empty') {
+                        return `<div class="w-full max-w-md aspect-video bg-white rounded-xl shadow-md border-2 border-dashed border-slate-400 flex items-center justify-center text-slate-400 font-bold text-sm">Пустий слайд (немає полів для порівняння)</div>`;
+                    }
+                    if (l === 'title') {
+                        return `<div class="w-full max-w-md aspect-video bg-white rounded-xl shadow-md border-2 border-slate-300 p-6 flex flex-col items-center justify-center">
+                            <div class="border-2 border-dashed border-indigo-400 w-3/4 p-3 text-center font-black text-slate-700 mb-2">Заголовок презентації</div>
+                            <div class="border-2 border-dashed border-slate-300 w-1/2 p-2 text-center text-xs text-slate-500">Підзаголовок (Автор)</div>
+                        </div>`;
+                    }
+                    if (l === 'only_title') {
+                        return `<div class="w-full max-w-md aspect-video bg-white rounded-xl shadow-md border-2 border-slate-300 p-4 flex flex-col">
+                            <div class="border-2 border-dashed border-indigo-400 w-full p-2 text-center font-black text-slate-700">Лише заголовок слайда</div>
+                        </div>`;
+                    }
+                    return `
+                        <div class="w-full max-w-md aspect-video bg-white rounded-xl shadow-md border-2 border-emerald-500 p-4 flex flex-col gap-2">
+                            <div class="border-2 border-dashed border-indigo-400 p-1.5 text-center font-black text-indigo-900 text-sm">Хто швидший: Гепард чи Сокіл?</div>
+                            <div class="grid grid-cols-2 gap-2 flex-1">
+                                <div class="border-2 border-dashed border-amber-400 rounded-lg p-2 bg-amber-50 flex flex-col items-center justify-center">
+                                    <span class="text-2xl">🐆</span>
+                                    <span class="font-black text-xs text-amber-900">Гепард (до 110 км/год)</span>
+                                </div>
+                                <div class="border-2 border-dashed border-sky-400 rounded-lg p-2 bg-sky-50 flex flex-col items-center justify-center">
+                                    <span class="text-2xl">🦅</span>
+                                    <span class="font-black text-xs text-sky-900">Сапсан (до 320 км/год)</span>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                },
+                validate: () => state.simData.layout === 'compare',
+                applySolution: () => { state.simData.layout = 'compare'; }
+            },
+
+            // ---------------------------------------------------------------------
+            // РІВЕНЬ 3: Теми оформлення
+            // ---------------------------------------------------------------------
+            {
+                title: "3. Єдиний стиль та Теми оформлення 🎨",
+                theory: `
+                    <p><b>Усі слайди презентації мають бути оформлені в єдиному стилі</b> — це полегшує сприйняття інформації.</p>
+                    <p class="mt-1.5">Для швидкого оформлення використовують <b>Теми оформлення</b> на вкладці <b>Конструктор</b> (вони задають фон, шрифти та кольори для всіх слайдів одразу).</p>
+                `,
+                visualSVG: `
+                    <svg viewBox="0 0 180 100" class="w-full max-w-[170px] h-auto">
+                        <rect x="8" y="15" width="50" height="35" rx="5" fill="#4f46e5"/>
+                        <rect x="65" y="15" width="50" height="35" rx="5" fill="#4f46e5"/>
+                        <rect x="122" y="15" width="50" height="35" rx="5" fill="#4f46e5"/>
+                        <text x="90" y="72" font-size="10" fill="#4338ca" text-anchor="middle" font-weight="bold">✅ Одна тема = єдиний стиль</text>
+                    </svg>
+                `,
+                tabs: ["Основне", "Вставлення", "Конструктор"],
+                activeTab: "Конструктор",
+                instruction: "Вірус зробив слайди строкатими, як клаптикова ковдра! Застосуй будь-яку єдину Тему оформлення на вкладці Конструктор:",
+                hint: "Натисни на одну з кнопок тем оформлення («Космос», «Океан» або «Природа») на панелі інструментів зверху.",
+                initSim: () => {
+                    state.simData = { theme: 'chaos' };
+                },
+                renderRibbon: () => {
+                    const themes = [
+                        { id: 'space', name: 'Тема: Космос', color: 'bg-indigo-900 text-white' },
+                        { id: 'ocean', name: 'Тема: Океан', color: 'bg-cyan-600 text-white' },
+                        { id: 'nature', name: 'Тема: Природа', color: 'bg-emerald-600 text-white' }
+                    ];
+                    return `
+                        <span class="text-xs font-black text-slate-600 mr-1">Теми оформлення:</span>
+                        ${themes.map(t => `
+                            <button onclick="setL3Theme('${t.id}')" class="px-3 py-2 rounded-xl font-extrabold text-xs shadow cursor-pointer transition transform hover:scale-105 ${t.color} ${state.simData.theme === t.id ? 'ring-4 ring-amber-400' : ''}">
+                                🎨 ${t.name}
+                            </button>
+                        `).join('')}
+                    `;
+                },
+                renderWorkspace: () => {
+                    const t = state.simData.theme;
+                    const styles = {
+                        chaos: ['bg-rose-300 text-yellow-900 font-serif', 'bg-lime-300 text-purple-900 font-mono', 'bg-amber-200 text-blue-900 italic'],
+                        space: ['bg-indigo-950 text-amber-300', 'bg-indigo-950 text-amber-300', 'bg-indigo-950 text-amber-300'],
+                        ocean: ['bg-cyan-800 text-white', 'bg-cyan-800 text-white', 'bg-cyan-800 text-white'],
+                        nature: ['bg-emerald-800 text-lime-200', 'bg-emerald-800 text-lime-200', 'bg-emerald-800 text-lime-200']
+                    }[t];
+
+                    return `
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 w-full max-w-xl">
+                            <div class="aspect-video rounded-xl p-3 shadow-md flex flex-col justify-center items-center text-center border-2 border-white ${styles[0]}">
+                                <div class="text-xs font-black">Слайд 1</div>
+                                <div class="text-[11px] mt-1">Титульний</div>
+                            </div>
+                            <div class="aspect-video rounded-xl p-3 shadow-md flex flex-col justify-center items-center text-center border-2 border-white ${styles[1]}">
+                                <div class="text-xs font-black">Слайд 2</div>
+                                <div class="text-[11px] mt-1">Головна ідея</div>
+                            </div>
+                            <div class="aspect-video rounded-xl p-3 shadow-md flex flex-col justify-center items-center text-center border-2 border-white ${styles[2]}">
+                                <div class="text-xs font-black">Слайд 3</div>
+                                <div class="text-[11px] mt-1">Висновки</div>
+                            </div>
+                        </div>
+                        <div class="mt-3 text-xs font-extrabold ${t === 'chaos' ? 'text-rose-600' : 'text-emerald-700'}">
+                            ${t === 'chaos' ? '❌ Зараз слайди мають різні кольори та шрифти!' : '✅ Чудово! Усі слайди оформлені в єдиному стилі!'}
+                        </div>
+                    `;
+                },
+                validate: () => state.simData.theme !== 'chaos',
+                applySolution: () => { state.simData.theme = 'space'; }
+            },
+
+            // ---------------------------------------------------------------------
+            // РІВЕНЬ 4: Вимоги до оформлення тексту (розмір >= 24, стислість)
+            // ---------------------------------------------------------------------
+            {
+                title: "4. Вимоги до тексту на слайді 📏",
+                theory: `
+                    <p>Текст на слайді має бути стислим (<b>не більше 6–8 рядків</b>, лише короткі фрази-тези).</p>
+                    <p class="mt-1.5">Розмір символів повинен бути <b>не менше ніж 24 пт</b>, щоб глядачі з останніх парт могли легко прочитати напис.</p>
+                `,
+                visualSVG: `
+                    <svg viewBox="0 0 180 100" class="w-full max-w-[170px] h-auto">
+                        <rect x="10" y="10" width="160" height="80" rx="8" fill="#ecfdf5" stroke="#10b981" stroke-width="2.5"/>
+                        <text x="90" y="42" font-size="14" fill="#065f46" text-anchor="middle" font-weight="bold">Шрифт ≥ 24 пт</text>
+                        <text x="90" y="65" font-size="10" fill="#047857" text-anchor="middle" font-weight="bold">Максимум 6-8 рядків</text>
+                    </svg>
+                `,
+                tabs: ["Основне", "Вставлення", "Конструктор"],
+                activeTab: "Основне",
+                instruction: "На слайді занадто дрібний шрифт (12 пт) і величезне простирадло тексту! Збільш шрифт до 28 пт та скороти текст до тез:",
+                hint: "Натисни обидві кнопки на стрічці: «Шрифт: 28 пт» та «Скоротити до тез».",
+                initSim: () => {
+                    state.simData = { fontSize: 12, isShort: false };
+                },
+                renderRibbon: () => `
+                    <button onclick="toggleL4Font()" class="ppt-tool-btn ${state.simData.fontSize >= 24 ? 'selected' : ''}">
+                        <span>🔠 Розмір шрифту: ${state.simData.fontSize} пт</span>
+                        <span class="text-[10px] text-indigo-600">(Натисни, щоб змінити)</span>
+                    </button>
+                    <button onclick="toggleL4Short()" class="ppt-tool-btn ${state.simData.isShort ? 'selected' : ''}">
+                        <span>✂️ ${state.simData.isShort ? 'Текст скорочено до тез' : 'Скоротити до тез (6 рядків)'}</span>
+                        <span class="text-[10px] text-indigo-600">(Натисни для оптимізації)</span>
+                    </button>
+                `,
+                renderWorkspace: () => {
+                    const big = state.simData.fontSize >= 24;
+                    const short = state.simData.isShort;
+                    return `
+                        <div class="w-full max-w-lg bg-white rounded-xl p-5 shadow-md border-2 border-slate-300">
+                            <div class="font-black text-indigo-800 text-lg mb-2 border-b pb-1">Сонячна система ☀️</div>
+                            ${short ? `
+                                <ul class="list-disc pl-5 space-y-1.5 font-bold text-slate-800 ${big ? 'text-lg sm:text-xl' : 'text-[10px]'}">
+                                    <li>У центрі розташоване Сонце.</li>
+                                    <li>Навколо обертаються 8 планет.</li>
+                                    <li>Земля — третя планета від Сонця.</li>
+                                </ul>
+                            ` : `
+                                <p class="text-slate-600 leading-tight ${big ? 'text-base' : 'text-[9px]'}">
+                                    Сонячна система — це планетна система, що включає в себе центральну зорю — Сонце — і всі природні космічні об'єкти, що обертаються навколо Сонця. Вона сформувалася шляхом гравітаційного стиснення газопилової хмари приблизно 4,57 мільярда років тому. Більша частина маси об'єктів припадає на Сонце, а решта міститься у восьми відносно відокремлених планетах, що мають майже колові орбіти, які лежать у межах майже плоского диска...
+                                </p>
+                            `}
+                        </div>
+                    `;
+                },
+                validate: () => state.simData.fontSize >= 24 && state.simData.isShort,
+                applySolution: () => { state.simData.fontSize = 28; state.simData.isShort = true; }
+            },
+
+            // ---------------------------------------------------------------------
+            // РІВЕНЬ 5: Контрастність кольору тексту та фону
+            // ---------------------------------------------------------------------
+            {
+                title: "5. Контрастність тексту та фону 🌗",
+                theory: `
+                    <p><b>Контраст</b> — це різка протилежність кольорів. Колір символів тексту має бути <b>контрастним до кольору фону</b>.</p>
+                    <p class="mt-1.5">На темному фоні використовуйте <b>світлий текст</b> (білий, жовтий), а на світлому фоні — <b>темний</b> (чорний, темно-синій).</p>
+                `,
+                visualSVG: `
+                    <svg viewBox="0 0 180 100" class="w-full max-w-[170px] h-auto">
+                        <rect x="10" y="15" width="75" height="70" rx="8" fill="#1e1b4b"/>
+                        <text x="47" y="54" font-size="12" fill="#fde047" text-anchor="middle" font-weight="bold">Світлий</text>
+                        <rect x="95" y="15" width="75" height="70" rx="8" fill="#f8fafc" stroke="#cbd5e1" stroke-width="2"/>
+                        <text x="132" y="54" font-size="12" fill="#0f172a" text-anchor="middle" font-weight="bold">Темний</text>
+                    </svg>
+                `,
+                tabs: ["Основне", "Конструктор"],
+                activeTab: "Основне",
+                instruction: "Темно-синій текст зовсім не видно на темно-фіолетовому фоні! Обери контрастний колір тексту на панелі Шрифт:",
+                hint: "На темному фоні найкраще читається білий або яскраво-жовтий текст!",
+                initSim: () => {
+                    state.simData = { textColor: 'bad-blue' };
+                },
+                renderRibbon: () => {
+                    const colors = [
+                        { id: 'bad-blue', name: 'Темно-синій', dot: 'bg-indigo-900' },
+                        { id: 'bad-purple', name: 'Фіолетовий', dot: 'bg-purple-800' },
+                        { id: 'good-yellow', name: 'Яскраво-жовтий', dot: 'bg-yellow-300' },
+                        { id: 'good-white', name: 'Білий', dot: 'bg-white border border-slate-400' }
+                    ];
+                    return `
+                        <span class="text-xs font-black text-slate-600 mr-1">Колір тексту (A):</span>
+                        ${colors.map(c => `
+                            <button onclick="setL5Color('${c.id}')" class="ppt-tool-btn flex-row gap-1.5 ${state.simData.textColor === c.id ? 'selected' : ''}">
+                                <span class="w-4 h-4 rounded-full ${c.dot} inline-block"></span>
+                                <span>${c.name}</span>
+                            </button>
+                        `).join('')}
+                    `;
+                },
+                renderWorkspace: () => {
+                    const map = {
+                        'bad-blue': 'text-indigo-900',
+                        'bad-purple': 'text-purple-800',
+                        'good-yellow': 'text-yellow-300',
+                        'good-white': 'text-white'
+                    };
+                    return `
+                        <div class="w-full max-w-md aspect-video bg-indigo-950 rounded-2xl p-6 shadow-lg flex flex-col items-center justify-center text-center border-4 border-indigo-800">
+                            <h3 class="text-xl sm:text-2xl font-black mb-2 ${map[state.simData.textColor]}">
+                                Таємниці океанічних глибин 🌊
+                            </h3>
+                            <p class="text-sm sm:text-base font-bold ${map[state.simData.textColor]}">
+                                Чи легко тобі прочитати цей текст зараз?
+                            </p>
+                        </div>
+                    `;
+                },
+                validate: () => state.simData.textColor === 'good-yellow' || state.simData.textColor === 'good-white',
+                applySolution: () => { state.simData.textColor = 'good-yellow'; }
+            },
+
+            // ---------------------------------------------------------------------
+            // РІВЕНЬ 6: Етапи створення комп'ютерної презентації
+            // ---------------------------------------------------------------------
+            {
+                title: "6. Етапи створення презентації 🪜",
+                theory: `
+                    <p>Створення якісної презентації завжди відбувається за чітким планом у <b>4 кроки</b>:</p>
+                    <p class="mt-1.5">1️⃣ <b>Визначення мети</b> та аудиторії $\\rightarrow$ 2️⃣ <b>Пошук і відбір матеріалів</b> $\\rightarrow$ 3️⃣ <b>Визначення структури</b> $\\rightarrow$ 4️⃣ <b>Створення в редакторі</b>.</p>
+                `,
+                visualSVG: `
+                    <svg viewBox="0 0 180 100" class="w-full max-w-[170px] h-auto">
+                        <rect x="10" y="15" width="35" height="70" rx="6" fill="#fef08a" stroke="#eab308" stroke-width="2"/>
+                        <text x="27" y="54" font-size="12" fill="#854d0e" text-anchor="middle" font-weight="bold">1🎯</text>
+                        <rect x="52" y="15" width="35" height="70" rx="6" fill="#bae6fd" stroke="#0284c7" stroke-width="2"/>
+                        <text x="69" y="54" font-size="12" fill="#075985" text-anchor="middle" font-weight="bold">2🔍</text>
+                        <rect x="94" y="15" width="35" height="70" rx="6" fill="#ddd6fe" stroke="#7c3aed" stroke-width="2"/>
+                        <text x="111" y="54" font-size="12" fill="#5b21b6" text-anchor="middle" font-weight="bold">3📋</text>
+                        <rect x="136" y="15" width="35" height="70" rx="6" fill="#bbf7d0" stroke="#16a34a" stroke-width="2"/>
+                        <text x="153" y="54" font-size="12" fill="#166534" text-anchor="middle" font-weight="bold">4💻</text>
+                    </svg>
+                `,
+                tabs: ["План проєкту", "Структура"],
+                activeTab: "План проєкту",
+                instruction: "Клікай на етапи у правильній послідовності (від 1-го до 4-го), щоб зібрати правильний алгоритм:",
+                hint: "Спочатку треба зрозуміти, для чого і для кого ми робимо презентацію (Мета), а за комп'ютер сідаємо лише в кінці!",
+                initSim: () => {
+                    state.simData = { order: [] };
+                },
+                renderRibbon: () => `
+                    <button onclick="resetL6()" class="ppt-tool-btn">
+                        <span>🔄 Скинути вибір</span>
+                    </button>
+                    <span class="text-xs font-bold text-slate-600">Обрано кроків: ${state.simData.order.length} з 4</span>
+                `,
+                renderWorkspace: () => {
+                    const steps = [
+                        { id: 4, text: "💻 Створення презентації в редакторі" },
+                        { id: 2, text: "🔍 Пошук і відбір текстів та зображень" },
+                        { id: 1, text: "🎯 Визначення мети та цільової аудиторії" },
+                        { id: 3, text: "📋 Визначення структури та кількості слайдів" }
+                    ];
+                    return `
+                        <div class="w-full max-w-lg space-y-2.5">
+                            ${steps.map(s => {
+                                const idx = state.simData.order.indexOf(s.id);
+                                const isPicked = idx !== -1;
+                                return `
+                                    <button onclick="pickL6Step(${s.id})" class="w-full p-3.5 rounded-xl border-2 font-extrabold text-sm text-left flex items-center justify-between transition cursor-pointer ${isPicked ? 'bg-indigo-600 text-white border-indigo-800 shadow' : 'bg-white text-slate-800 border-slate-300 hover:border-indigo-400'}">
+                                        <span>${s.text}</span>
+                                        <span class="px-2.5 py-0.5 rounded-full text-xs font-black ${isPicked ? 'bg-amber-400 text-slate-900' : 'bg-slate-200 text-slate-500'}">
+                                            ${isPicked ? `Крок №${idx + 1}` : 'Натисни'}
+                                        </span>
+                                    </button>
+                                `;
+                            }).join('')}
+                        </div>
+                    `;
+                },
+                validate: () => {
+                    const o = state.simData.order;
+                    return o.length === 4 && o[0] === 1 && o[1] === 2 && o[2] === 3 && o[3] === 4;
+                },
+                applySolution: () => { state.simData.order = [1, 2, 3, 4]; }
+            },
+
+            // ---------------------------------------------------------------------
+            // РІВЕНЬ 7: Текстові об'єкти та художній текст WordArt
+            // ---------------------------------------------------------------------
+            {
+                title: "7. Художній текст WordArt ✨",
+                theory: `
+                    <p>Окрім звичайних текстових полів, на слайд можна додати <b>об'єкт WordArt</b> — текст із художнім оформленням (градієнтом, тінню, викривленням).</p>
+                    <p class="mt-1.5">Інструменти <b>Текстове поле</b> та <b>WordArt</b> знаходяться на вкладці <b>Вставлення</b> у групі <b>Текст</b>.</p>
+                `,
+                visualSVG: `
+                    <svg viewBox="0 0 180 100" class="w-full max-w-[170px] h-auto">
+                        <rect x="10" y="15" width="160" height="70" rx="10" fill="#fff7ed" stroke="#f97316" stroke-width="2.5"/>
+                        <text x="90" y="55" font-size="22" fill="#ea580c" text-anchor="middle" font-weight="900" font-style="italic">WordArt</text>
+                        <text x="90" y="75" font-size="9" fill="#9a3412" text-anchor="middle" font-weight="bold">Вставлення → WordArt</text>
+                    </svg>
+                `,
+                tabs: ["Основне", "Вставлення", "Конструктор"],
+                activeTab: "Вставлення",
+                instruction: "Зроби заголовок слайда яскравим! Натисни кнопку «WordArt» на панелі інструментів, щоб застосувати художній стиль:",
+                hint: "Подивись на панель інструментів вкладки «Вставлення» та натисни кнопку з похилою літерою А — «WordArt».",
+                initSim: () => {
+                    state.simData = { hasWordArt: false };
+                },
+                renderRibbon: () => `
+                    <button onclick="applyL7Plain()" class="ppt-tool-btn ${!state.simData.hasWordArt ? 'selected' : ''}">
+                        <span>📝 Звичайний текст</span>
+                    </button>
+                    <button onclick="applyL7WordArt()" class="ppt-tool-btn ${state.simData.hasWordArt ? 'selected' : ''}">
+                        <span class="text-orange-600 font-black italic">🅰️ WordArt (Художній)</span>
+                    </button>
+                `,
+                renderWorkspace: () => `
+                    <div class="w-full max-w-md aspect-video bg-gradient-to-br from-sky-100 to-indigo-100 rounded-2xl p-6 shadow-md border-2 border-indigo-200 flex flex-col items-center justify-center text-center">
+                        ${state.simData.hasWordArt ? `
+                            <div class="text-3xl sm:text-4xl wordart-style mb-3">СВІТ РОБОТОТЕХНІКИ 🤖</div>
+                        ` : `
+                            <div class="text-xl text-slate-600 font-normal mb-3 border border-dashed border-slate-400 px-3 py-1">Світ робототехніки</div>
+                        `}
+                        <p class="text-xs font-bold text-slate-500">
+                            ${state.simData.hasWordArt ? '✨ Супер! Художній заголовок привертає увагу!' : 'Зараз це звичайний нудний текст.'}
+                        </p>
+                    </div>
+                `,
+                validate: () => state.simData.hasWordArt === true,
+                applySolution: () => { state.simData.hasWordArt = true; }
+            },
+
+            // ---------------------------------------------------------------------
+            // РІВЕНЬ 8: Правила введення тексту з клавіатури
+            // ---------------------------------------------------------------------
+            {
+                title: "8. Правила набору тексту ⌨️",
+                theory: `
+                    <p>Під час введення тексту на слайді важливо дотримуватися правил пунктуації:</p>
+                    <p class="mt-1.5">• <b>Перед</b> розділовими знаками (<b>, . ! ? : ;</b>) пропуск <b>НЕ ставиться</b>, а <b>після</b> них — ставиться.<br>• Усередині <b>дужок ( )</b> та <b>лапок « »</b> пропуски біля слів не ставляться.</p>
+                `,
+                visualSVG: `
+                    <svg viewBox="0 0 180 100" class="w-full max-w-[170px] h-auto">
+                        <rect x="10" y="12" width="160" height="34" rx="6" fill="#fee2e2" stroke="#ef4444" stroke-width="2"/>
+                        <text x="90" y="33" font-size="11" fill="#991b1b" text-anchor="middle" font-weight="bold">❌ Привіт , ( світ ) !</text>
+                        <rect x="10" y="54" width="160" height="34" rx="6" fill="#dcfce7" stroke="#22c55e" stroke-width="2"/>
+                        <text x="90" y="75" font-size="11" fill="#166534" text-anchor="middle" font-weight="bold">✅ Привіт, (світ)!</text>
+                    </svg>
+                `,
+                tabs: ["Основне", "Рецензування"],
+                activeTab: "Основне",
+                instruction: "Вірус-Хаос наробив помилок з пропусками! Обери варіант речення, набраний БЕЗ жодної помилки:",
+                hint: "Уважно перевір, щоб перед комою та знаком оклику не було пропусків, а в дужках слова не відривалися від дужок.",
+                initSim: () => {
+                    state.simData = { choice: null };
+                },
+                renderRibbon: () => `
+                    <span class="text-xs font-extrabold text-slate-600">🔍 Перевірка орфографії та пунктуації</span>
+                `,
+                renderWorkspace: () => {
+                    const options = [
+                        { id: 'A', text: 'Україна ( наша Батьківщина ) — прекрасна країна !' },
+                        { id: 'B', text: 'Україна (наша Батьківщина) — прекрасна країна!' },
+                        { id: 'C', text: 'Україна(наша Батьківщина)— прекрасна країна!' }
+                    ];
+                    return `
+                        <div class="w-full max-w-lg space-y-2.5">
+                            ${options.map(opt => `
+                                <button onclick="setL8Choice('${opt.id}')" class="w-full p-3.5 rounded-xl border-2 font-mono text-xs sm:text-sm font-bold text-left transition cursor-pointer ${state.simData.choice === opt.id ? 'bg-indigo-600 text-white border-indigo-800 shadow-md' : 'bg-white text-slate-800 border-slate-300 hover:border-indigo-400'}">
+                                    <span class="inline-block w-6 font-black">${opt.id})</span> ${opt.text}
+                                </button>
+                            `).join('')}
+                        </div>
+                    `;
+                },
+                validate: () => state.simData.choice === 'B',
+                applySolution: () => { state.simData.choice = 'B'; }
+            },
+
+            // ---------------------------------------------------------------------
+            // РІВЕНЬ 9: Вирівнювання абзаців
+            // ---------------------------------------------------------------------
+            {
+                title: "9. Вирівнювання абзаців на слайді 📐",
+                theory: `
+                    <p>Положення тексту відносно меж текстового поля називають <b>вирівнюванням абзаців</b> (вкладка <b>Основне</b>, група <b>Абзац</b>).</p>
+                    <p class="mt-1.5">Заголовок слайда зазвичай вирівнюють <b>по центру</b>, а основний текст списку — <b>за лівим краєм</b>.</p>
+                `,
+                visualSVG: `
+                    <svg viewBox="0 0 180 100" class="w-full max-w-[170px] h-auto">
+                        <rect x="10" y="10" width="160" height="80" rx="8" fill="#f8fafc" stroke="#64748b" stroke-width="2"/>
+                        <line x1="45" y1="26" x2="135" y2="26" stroke="#4f46e5" stroke-width="4" stroke-linecap="round"/>
+                        <line x1="25" y1="48" x2="145" y2="48" stroke="#0f172a" stroke-width="3" stroke-linecap="round"/>
+                        <line x1="25" y1="62" x2="120" y2="62" stroke="#0f172a" stroke-width="3" stroke-linecap="round"/>
+                        <line x1="25" y1="76" x2="135" y2="76" stroke="#0f172a" stroke-width="3" stroke-linecap="round"/>
+                    </svg>
+                `,
+                tabs: ["Основне", "Вставлення"],
+                activeTab: "Основне",
+                instruction: "Зараз заголовок з'їхав управо! Встанови для заголовка вирівнювання «По центру»:",
+                hint: "Натисни кнопку «По центру» на панелі інструментів групи Абзац.",
+                initSim: () => {
+                    state.simData = { align: 'right' };
+                },
+                renderRibbon: () => {
+                    const aligns = [
+                        { id: 'left', name: 'За лівим краєм', icon: '⬅️' },
+                        { id: 'center', name: 'По центру', icon: '↔️' },
+                        { id: 'right', name: 'За правим краєм', icon: '➡️' }
+                    ];
+                    return `
+                        <span class="text-xs font-black text-slate-600 mr-1">Абзац (Заголовок):</span>
+                        ${aligns.map(a => `
+                            <button onclick="setL9Align('${a.id}')" class="ppt-tool-btn ${state.simData.align === a.id ? 'selected' : ''}">
+                                <span>${a.icon} ${a.name}</span>
+                            </button>
+                        `).join('')}
+                    `;
+                },
+                renderWorkspace: () => {
+                    const alignClass = {
+                        left: 'text-left',
+                        center: 'text-center',
+                        right: 'text-right'
+                    }[state.simData.align];
+                    return `
+                        <div class="w-full max-w-md bg-white rounded-2xl p-5 shadow-md border-2 border-slate-300">
+                            <div class="border-2 border-dashed border-indigo-400 p-2 mb-3 font-black text-lg text-indigo-800 ${alignClass}">
+                                Корисні копалини України 💎
+                            </div>
+                            <div class="border-2 border-dashed border-slate-200 p-3 text-left text-sm font-bold text-slate-700 space-y-1">
+                                <div>• Кам'яне вугілля</div>
+                                <div>• Залізна руда</div>
+                                <div>• Природний газ</div>
+                            </div>
+                        </div>
+                    `;
+                },
+                validate: () => state.simData.align === 'center',
+                applySolution: () => { state.simData.align = 'center'; }
+            },
+
+            // ---------------------------------------------------------------------
+            // РІВЕНЬ 10: Графічні об'єкти та авторське право (Creative Commons)
+            // ---------------------------------------------------------------------
+            {
+                title: "10. Графічні об'єкти та Авторське право ©️",
+                theory: `
+                    <p>На слайди можна вставляти <b>фігури, зображення, піктограми та 3D-моделі</b> (вкладка <b>Вставлення</b>).</p>
+                    <p class="mt-1.5">Для дотримання <b>академічної доброчесності</b> обирайте в Інтернеті фото з ліцензією <b>Creative Commons</b> та вказуйте посилання на джерело!</p>
+                `,
+                visualSVG: `
+                    <svg viewBox="0 0 180 100" class="w-full max-w-[170px] h-auto">
+                        <circle cx="90" cy="42" r="24" fill="#dcfce7" stroke="#16a34a" stroke-width="3"/>
+                        <text x="90" y="48" font-size="16" fill="#15803d" text-anchor="middle" font-weight="900">CC</text>
+                        <text x="90" y="84" font-size="9" fill="#166534" text-anchor="middle" font-weight="bold">Ліцензія Creative Commons</text>
+                    </svg>
+                `,
+                tabs: ["Основне", "Вставлення", "Формат зображення"],
+                activeTab: "Вставлення",
+                instruction: "Потрібно законно додати фото Карпат на слайд. Увімкни фільтр «Тільки Creative Commons» та встав зображення:",
+                hint: "Постав галочку «Тільки Creative Commons», а потім натисни кнопку «Вставити фото Карпат».",
+                initSim: () => {
+                    state.simData = { ccChecked: false, inserted: false };
+                },
+                renderRibbon: () => `
+                    <label class="flex items-center gap-2 bg-white px-3 py-2 rounded-xl border-2 border-emerald-400 cursor-pointer text-xs font-extrabold text-slate-800">
+                        <input type="checkbox" onchange="toggleL10CC(this.checked)" ${state.simData.ccChecked ? 'checked' : ''} class="w-4 h-4 accent-emerald-600">
+                        <span>✅ Тільки Creative Commons</span>
+                    </label>
+                    <button onclick="insertL10Photo()" class="ppt-tool-btn bg-emerald-50 border-emerald-400">
+                        <span>🏔️ Вставити фото Карпат</span>
+                    </button>
+                `,
+                renderWorkspace: () => `
+                    <div class="w-full max-w-md bg-white rounded-2xl p-4 shadow-md border-2 border-slate-300 text-center">
+                        <div class="font-black text-slate-800 mb-2">Українські Карпати 🌲</div>
+                        ${state.simData.inserted ? `
+                            <div class="bg-gradient-to-b from-sky-300 via-emerald-400 to-emerald-700 rounded-xl p-6 text-white font-black shadow-inner">
+                                <div class="text-4xl mb-1">🏔️🌲☀️</div>
+                                <div class="text-sm">Фото успішно додано на слайд!</div>
+                            </div>
+                            <div class="text-[11px] font-bold mt-2 ${state.simData.ccChecked ? 'text-emerald-700' : 'text-rose-600'}">
+                                ${state.simData.ccChecked ? '📜 Ліцензія: Creative Commons (Автора вказано!)' : '⚠️ Увага! Ти вставив фото без перевірки ліцензії Creative Commons!'}
+                            </div>
+                        ` : `
+                            <div class="border-2 border-dashed border-slate-300 rounded-xl p-8 text-slate-400 font-bold text-xs">
+                                Місце для зображення (увімкни Creative Commons та встав фото)
+                            </div>
+                        `}
+                    </div>
+                `,
+                validate: () => state.simData.ccChecked && state.simData.inserted,
+                applySolution: () => { state.simData.ccChecked = true; state.simData.inserted = true; }
+            },
+
+            // ---------------------------------------------------------------------
+            // РІВЕНЬ 11: Режими роботи та сортування слайдів
+            // ---------------------------------------------------------------------
+            {
+                title: "11. Режими роботи та Сортувальник слайдів 🗂️",
+                theory: `
+                    <p>Для зручної роботи є 4 режими: <b>Звичайний</b>, <b>Сортувальник слайдів</b>, <b>Подання читання</b> та <b>Показ слайдів</b>.</p>
+                    <p class="mt-1.5">У режимі <b>Сортувальник слайдів</b> зручно змінювати порядок слайдів (наприклад, поставити <b>Титульний слайд</b> першим).</p>
+                `,
+                visualSVG: `
+                    <svg viewBox="0 0 180 100" class="w-full max-w-[170px] h-auto">
+                        <rect x="12" y="15" width="46" height="30" rx="4" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+                        <rect x="67" y="15" width="46" height="30" rx="4" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+                        <rect x="122" y="15" width="46" height="30" rx="4" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+                        <text x="90" y="72" font-size="10" fill="#1e40af" text-anchor="middle" font-weight="bold">Сортувальник слайдів</text>
+                    </svg>
+                `,
+                tabs: ["Подання", "Показ слайдів"],
+                activeTab: "Подання",
+                instruction: "Вірус переплутав порядок слайдів! Натискай на слайди по черзі (1 $\\rightarrow$ 2 $\\rightarrow$ 3), щоб розставити їх правильно:",
+                hint: "Першим має бути «Титульний слайд», другим — «Основна частина», а третім у кінці — «Використані джерела».",
+                initSim: () => {
+                    state.simData = { slots: [] };
+                },
+                renderRibbon: () => `
+                    <span class="ppt-tool-btn selected"><span>🗂️ Режим: Сортувальник слайдів</span></span>
+                    <button onclick="resetL11()" class="ppt-tool-btn"><span>🔄 Скинути</span></button>
+                `,
+                renderWorkspace: () => {
+                    const slides = [
+                        { id: 'sources', label: '📚 Використані джерела' },
+                        { id: 'title', label: '🏷️ Титульний слайд' },
+                        { id: 'main', label: '💡 Основна частина' }
+                    ];
+                    return `
+                        <div class="w-full max-w-xl">
+                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                                ${slides.map(sl => {
+                                    const pos = state.simData.slots.indexOf(sl.id);
+                                    const picked = pos !== -1;
+                                    return `
+                                        <button onclick="pickL11Slide('${sl.id}')" class="aspect-video rounded-xl p-3 border-2 flex flex-col items-center justify-center text-center font-extrabold text-xs sm:text-sm transition cursor-pointer ${picked ? 'bg-indigo-600 text-white border-indigo-800 shadow-lg' : 'bg-white text-slate-800 border-slate-300 hover:border-indigo-500'}">
+                                            <span class="mb-1">${sl.label}</span>
+                                            <span class="px-2 py-0.5 rounded-full text-[11px] font-black ${picked ? 'bg-amber-400 text-slate-900' : 'bg-slate-200 text-slate-500'}">
+                                                ${picked ? `Слайд №${pos + 1}` : 'Обрати позицію'}
+                                            </span>
+                                        </button>
+                                    `;
+                                }).join('')}
+                            </div>
+                        </div>
+                    `;
+                },
+                validate: () => {
+                    const s = state.simData.slots;
+                    return s.length === 3 && s[0] === 'title' && s[1] === 'main' && s[2] === 'sources';
+                },
+                applySolution: () => { state.simData.slots = ['title', 'main', 'sources']; }
+            },
+
+            // ---------------------------------------------------------------------
+            // РІВЕНЬ 12: Запуск показу та виступ перед аудиторією
+            // ---------------------------------------------------------------------
+            {
+                title: "12. Фінал! Запуск показу (F5) та Лазерний вказівник 🔴",
+                theory: `
+                    <p>Щоб запустити показ презентації з першого слайда, натискають клавішу <b>F5</b> (або <b>Показ слайдів $\\rightarrow$ З початку</b>).</p>
+                    <p class="mt-1.5">Під час виступу <b>не читайте весь текст зі слайда</b>, а виділяйте важливі об'єкти за допомогою <b>Лазерного вказівника</b>!</p>
+                `,
+                visualSVG: `
+                    <svg viewBox="0 0 180 100" class="w-full max-w-[170px] h-auto">
+                        <rect x="20" y="15" width="60" height="40" rx="8" fill="#1e293b"/>
+                        <text x="50" y="40" font-size="14" fill="#fff" text-anchor="middle" font-weight="bold">F5</text>
+                        <circle cx="130" cy="35" r="14" fill="#fee2e2" stroke="#ef4444" stroke-width="2"/>
+                        <circle cx="130" cy="35" r="5" fill="#ef4444"/>
+                        <text x="90" y="82" font-size="9" fill="#334155" text-anchor="middle" font-weight="bold">F5 + Лазерний вказівник</text>
+                    </svg>
+                `,
+                tabs: ["Показ слайдів"],
+                activeTab: "Показ слайдів",
+                instruction: "Останній крок! Натисни «Запустити показ (F5)», увімкни «Лазерний вказівник» і клікни на головну ракету на слайді:",
+                hint: "1) Натисни «З початку (F5)»; 2) Натисни «Лазерний вказівник»; 3) Клікни на ракету 🚀 на екрані показу!",
+                initSim: () => {
+                    state.simData = { started: false, laser: false, pointed: false };
+                },
+                renderRibbon: () => `
+                    <button onclick="startL12Show()" class="ppt-tool-btn ${state.simData.started ? 'selected' : ''}">
+                        <span>▶️ З початку (F5)</span>
+                    </button>
+                    <button onclick="enableL12Laser()" class="ppt-tool-btn ${state.simData.laser ? 'selected' : ''}">
+                        <span>🔴 Лазерний вказівник</span>
+                    </button>
+                `,
+                renderWorkspace: () => {
+                    if (!state.simData.started) {
+                        return `
+                            <div class="w-full max-w-md aspect-video bg-white rounded-xl p-6 shadow border-2 border-slate-300 flex flex-col items-center justify-center text-center">
+                                <div class="text-slate-400 font-black text-sm mb-2">Режим редагування</div>
+                                <div class="text-xs font-bold text-slate-500">Натисни кнопку <b>«▶️ З початку (F5)»</b> на панелі зверху, щоб розпочати виступ!</div>
+                            </div>
+                        `;
+                    }
+                    return `
+                        <div class="w-full max-w-md aspect-video bg-slate-900 text-white rounded-xl p-5 shadow-2xl border-4 border-emerald-400 flex flex-col items-center justify-between relative">
+                            <div class="text-xs uppercase tracking-widest text-emerald-400 font-black">🟢 Повноекранний показ слайдів</div>
+                            <button onclick="pointL12Rocket()" class="p-4 rounded-2xl transition transform hover:scale-110 cursor-pointer relative ${state.simData.pointed ? 'bg-emerald-500/30 ring-4 ring-rose-500' : 'bg-white/10'}">
+                                <span class="text-5xl">🚀</span>
+                                ${state.simData.pointed ? '<span class="laser-dot" style="top: 50%; left: 50%;"></span>' : ''}
+                            </button>
+                            <div class="text-xs font-bold text-center text-slate-200">
+                                ${!state.simData.laser ? 'Тепер увімкни 🔴 Лазерний вказівник зверху!' : (state.simData.pointed ? '🎯 Чудово! Ти виділив головний об’єкт під час виступу!' : 'Натисни на ракету 🚀, щоб підсвітити її лазерним вказівником!')}
+                            </div>
+                        </div>
+                    `;
+                },
+                validate: () => state.simData.started && state.simData.laser && state.simData.pointed,
+                applySolution: () => { state.simData.started = true; state.simData.laser = true; state.simData.pointed = true; }
+            }
+        ];
+
+        // =========================================================================
+        // ДОПОМІЖНІ ФУНКЦІЇ ДЛЯ ІНТЕРАКТИВНОГО СИМУЛЯТОРА
+        // =========================================================================
+        function toggleL1Item(id) {
+            if (state.levelCompleted) return;
+            const arr = state.simData.selected;
+            const idx = arr.indexOf(id);
+            if (idx > -1) arr.splice(idx, 1);
+            else if (arr.length < 3) arr.push(id);
+            renderSimBody();
+        }
+
+        function setL2Layout(layout) {
+            if (state.levelCompleted) return;
+            state.simData.layout = layout;
+            renderSimBody();
+        }
+
+        function setL3Theme(theme) {
+            if (state.levelCompleted) return;
+            state.simData.theme = theme;
+            renderSimBody();
+        }
+
+        function toggleL4Font() {
+            if (state.levelCompleted) return;
+            state.simData.fontSize = state.simData.fontSize === 12 ? 28 : 12;
+            renderSimBody();
+        }
+
+        function toggleL4Short() {
+            if (state.levelCompleted) return;
+            state.simData.isShort = !state.simData.isShort;
+            renderSimBody();
+        }
+
+        function setL5Color(colorId) {
+            if (state.levelCompleted) return;
+            state.simData.textColor = colorId;
+            renderSimBody();
+        }
+
+        function pickL6Step(stepId) {
+            if (state.levelCompleted) return;
+            if (!state.simData.order.includes(stepId)) {
+                state.simData.order.push(stepId);
+                renderSimBody();
+            }
+        }
+        function resetL6() {
+            if (state.levelCompleted) return;
+            state.simData.order = [];
+            renderSimBody();
+        }
+
+        function applyL7Plain() {
+            if (state.levelCompleted) return;
+            state.simData.hasWordArt = false;
+            renderSimBody();
+        }
+        function applyL7WordArt() {
+            if (state.levelCompleted) return;
+            state.simData.hasWordArt = true;
+            renderSimBody();
+        }
+
+        function setL8Choice(choice) {
+            if (state.levelCompleted) return;
+            state.simData.choice = choice;
+            renderSimBody();
+        }
+
+        function setL9Align(align) {
+            if (state.levelCompleted) return;
+            state.simData.align = align;
+            renderSimBody();
+        }
+
+        function toggleL10CC(checked) {
+            if (state.levelCompleted) return;
+            state.simData.ccChecked = checked;
+            renderSimBody();
+        }
+        function insertL10Photo() {
+            if (state.levelCompleted) return;
+            state.simData.inserted = true;
+            renderSimBody();
+        }
+
+        function pickL11Slide(slideId) {
+            if (state.levelCompleted) return;
+            if (!state.simData.slots.includes(slideId)) {
+                state.simData.slots.push(slideId);
+                renderSimBody();
+            }
+        }
+        function resetL11() {
+            if (state.levelCompleted) return;
+            state.simData.slots = [];
+            renderSimBody();
+        }
+
+        function startL12Show() {
+            if (state.levelCompleted) return;
+            state.simData.started = true;
+            renderSimBody();
+        }
+        function enableL12Laser() {
+            if (state.levelCompleted) return;
+            state.simData.laser = true;
+            renderSimBody();
+        }
+        function pointL12Rocket() {
+            if (state.levelCompleted) return;
+            if (state.simData.started && state.simData.laser) {
+                state.simData.pointed = true;
+                renderSimBody();
+            }
+        }
+
+        // =========================================================================
+        // КЕРУВАННЯ ПОТОКОМ КВЕСТУ
+        // =========================================================================
+        function startQuest() {
+            const nameInput = document.getElementById('student-name').value.trim();
+            const classInput = document.getElementById('student-class').value.trim();
+            const errorEl = document.getElementById('start-error');
+
+            if (!nameInput || !classInput) {
+                errorEl.classList.remove('hidden');
+                return;
+            }
+
+            state.studentName = nameInput;
+            state.studentClass = classInput;
+
+            document.getElementById('start-screen').classList.add('hidden');
+            document.getElementById('hud-bar').classList.remove('hidden');
+            document.getElementById('quest-screen').classList.remove('hidden');
+
+            document.getElementById('hud-student-info').textContent = `Агент: ${state.studentName} (${state.studentClass})`;
+            loadLevel(0);
+        }
+
+        function loadLevel(index) {
+            state.currentLevelIndex = index;
+            state.attempts = 0;
+            state.levelCompleted = false;
+
+            const lvl = levels[index];
+            lvl.initSim();
+
+            // Оновлення HUD
+            document.getElementById('hud-level').textContent = index + 1;
+            document.getElementById('hud-score').textContent = state.totalScore;
+            document.getElementById('hud-progress').style.width = `${((index + 1) / levels.length) * 100}%`;
+
+            // Заповнення картки рівня
+            document.getElementById('level-badge').textContent = `Рівень ${index + 1} / 12`;
+            updateAttemptBadge();
+            document.getElementById('level-title').textContent = lvl.title;
+            document.getElementById('theory-text').innerHTML = lvl.theory;
+            document.getElementById('theory-visual').innerHTML = lvl.visualSVG;
+            document.getElementById('task-instruction').textContent = lvl.instruction;
+
+            // Вкладки стрічки
+            const tabsEl = document.getElementById('sim-tabs');
+            tabsEl.innerHTML = lvl.tabs.map(t => `
+                <div class="ppt-ribbon-tab ${t === lvl.activeTab ? 'active' : ''}">${t}</div>
+            `).join('');
+
+            // Скидання зворотного зв'язку та кнопок
+            const fb = document.getElementById('feedback-box');
+            fb.classList.add('hidden');
+            document.getElementById('check-btn').classList.remove('hidden');
+            document.getElementById('next-btn').classList.add('hidden');
+
+            renderSimBody();
+        }
+
+        function renderSimBody() {
+            const lvl = levels[state.currentLevelIndex];
+            document.getElementById('sim-ribbon').innerHTML = lvl.renderRibbon();
+            document.getElementById('sim-workspace').innerHTML = lvl.renderWorkspace();
+        }
+
+        function updateAttemptBadge() {
+            const badge = document.getElementById('attempt-badge');
+            if (state.attempts === 0) {
+                badge.className = "bg-emerald-100 text-emerald-800 text-xs font-extrabold px-3 py-1 rounded-full";
+                badge.textContent = "🎯 Спроба 1 (на кону: 1 бал)";
+            } else {
+                badge.className = "bg-amber-100 text-amber-800 text-xs font-extrabold px-3 py-1 rounded-full";
+                badge.textContent = "⚡ Спроба 2 (на кону: 0,5 бала)";
+            }
+        }
+
+        function checkCurrentLevel() {
+            if (state.levelCompleted) return;
+
+            const lvl = levels[state.currentLevelIndex];
+            const isCorrect = lvl.validate();
+            const fb = document.getElementById('feedback-box');
+            fb.classList.remove('hidden', 'animate-shake');
+
+            if (isCorrect) {
+                // Успішне виконання
+                const earned = state.attempts === 0 ? 1 : 0.5;
+                state.totalScore += earned;
+                state.levelScores.push({
+                    title: lvl.title,
+                    score: earned
+                });
+                state.levelCompleted = true;
+
+                document.getElementById('hud-score').textContent = state.totalScore;
+                fb.className = "mt-5 rounded-2xl p-4 font-bold text-sm sm:text-base border-2 bg-emerald-50 border-emerald-400 text-emerald-900";
+                fb.innerHTML = `🎉 <b>Блискуче!</b> Рівень пройдено з ${state.attempts + 1}-ї спроби! Тобі нараховано <b>+${earned} бал${earned === 1 ? '' : 'а'}</b>.`;
+
+                finishLevelStep();
+            } else {
+                state.attempts++;
+                void fb.offsetWidth; // перезапуск анімації
+                fb.classList.add('animate-shake');
+
+                if (state.attempts === 1) {
+                    // Перша помилка -> підказка, ще є 2-га спроба на 0.5 бала
+                    updateAttemptBadge();
+                    fb.className = "mt-5 rounded-2xl p-4 font-bold text-sm sm:text-base border-2 bg-amber-50 border-amber-400 text-amber-900";
+                    fb.innerHTML = `🤔 <b>Майже вийшло!</b> Але вірус ще не знешкоджено.<br>💡 <b>Підказка:</b> ${lvl.hint}<br><span class="text-xs text-amber-700">У тебе залишилася 2-га спроба за 0,5 бала!</span>`;
+                } else {
+                    // Друга помилка -> 0 балів, показуємо правильне рішення
+                    state.levelScores.push({
+                        title: lvl.title,
+                        score: 0
+                    });
+                    state.levelCompleted = true;
+                    lvl.applySolution();
+                    renderSimBody();
+
+                    fb.className = "mt-5 rounded-2xl p-4 font-bold text-sm sm:text-base border-2 bg-rose-50 border-rose-400 text-rose-900";
+                    fb.innerHTML = `❌ <b>Обидві спроби використано (0 балів).</b> Система автоматично відновила правильний вигляд слайда (дивись вище). Рухаймося далі!`;
+
+                    finishLevelStep();
+                }
+            }
+        }
+
+        function finishLevelStep() {
+            document.getElementById('check-btn').classList.add('hidden');
+            const nextBtn = document.getElementById('next-btn');
+            nextBtn.classList.remove('hidden');
+
+            if (state.currentLevelIndex === levels.length - 1) {
+                nextBtn.textContent = "🏆 Завершити квест та побачити оцінку";
+            } else {
+                nextBtn.textContent = "➡️ Наступний рівень";
+            }
+        }
+
+        function nextLevel() {
+            if (state.currentLevelIndex < levels.length - 1) {
+                loadLevel(state.currentLevelIndex + 1);
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            } else {
+                showFinalScreen();
+            }
+        }
+
+        // =========================================================================
+        // ФІНАЛЬНИЙ ЕКРАН ТА ВІДПРАВКА НА FORMSPREE
+        // =========================================================================
+        function showFinalScreen() {
+            document.getElementById('hud-bar').classList.add('hidden');
+            document.getElementById('quest-screen').classList.add('hidden');
+            document.getElementById('result-screen').classList.remove('hidden');
+
+            document.getElementById('final-score').textContent = state.totalScore;
+            document.getElementById('result-subtitle').textContent =
+                `${state.studentName} (${state.studentClass}), ти успішно відновив систему Шкільного Медіацентру!`;
+
+            const gradeEl = document.getElementById('final-grade-text');
+            if (state.totalScore >= 10) gradeEl.textContent = "🌟 Високий рівень! Справжній майстер презентацій!";
+            else if (state.totalScore >= 7) gradeEl.textContent = "👍 Достатній рівень! Чудова робота!";
+            else if (state.totalScore >= 4) gradeEl.textContent = "💪 Середній рівень! Варто ще трохи потренуватися.";
+            else gradeEl.textContent = "📚 Початковий рівень. Повтори теорію та спробуй ще раз!";
+
+            const breakdownEl = document.getElementById('results-breakdown');
+            breakdownEl.innerHTML = state.levelScores.map(item => {
+                const badgeClass = item.score === 1
+                    ? 'bg-emerald-100 text-emerald-800'
+                    : (item.score === 0.5 ? 'bg-amber-100 text-amber-800' : 'bg-rose-100 text-rose-800');
+                return `
+                    <div class="bg-white p-2.5 rounded-xl border border-slate-200 flex items-center justify-between gap-2">
+                        <span class="font-bold text-slate-700 truncate">${item.title}</span>
+                        <span class="px-2 py-0.5 rounded-lg font-black shrink-0 ${badgeClass}">${item.score} б.</span>
+                    </div>
+                `;
+            }).join('');
+
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        async function submitResultsToTeacher() {
+            const btn = document.getElementById('send-result-btn');
+            const statusEl = document.getElementById('submit-status');
+
+            btn.disabled = true;
+            btn.textContent = "⏳ Надсилання результату...";
+            statusEl.classList.remove('hidden');
+            statusEl.className = "mt-3 text-sm font-extrabold p-3 rounded-xl bg-amber-100 text-amber-900";
+            statusEl.textContent = "З'єднання із сервером учителя...";
+
+            const detailsText = state.levelScores
+                .map(s => `${s.title}: ${s.score} б.`)
+                .join('\n');
+
+            const payload = {
+                "Прізвище та Ім'я": state.studentName,
+                "Клас": state.studentClass,
+                "Загальний бал (з 12)": state.totalScore,
+                "Деталізація по завданнях": detailsText
+            };
+
+            try {
+                const response = await fetch("https://formspree.io/f/mvkarjzz", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Accept": "application/json"
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                if (response.ok) {
+                    btn.className = "w-full bg-emerald-700 text-white font-black text-base py-3.5 px-6 rounded-2xl cursor-default";
+                    btn.textContent = "✅ Результат успішно надіслано!";
+                    statusEl.className = "mt-3 text-sm font-extrabold p-3 rounded-xl bg-emerald-200 text-emerald-950";
+                    statusEl.textContent = "🎉 Вітаємо! Учитель отримав твою оцінку та звіт про проходження квесту.";
+                } else {
+                    throw new Error("Помилка відповіді сервера");
+                }
+            } catch (error) {
+                btn.disabled = false;
+                btn.textContent = "🔄 Спробувати надіслати ще раз";
+                statusEl.className = "mt-3 text-sm font-extrabold p-3 rounded-xl bg-rose-100 text-rose-800";
+                statusEl.textContent = "⚠️ Не вдалося надіслати результат. Перевір підключення до Інтернету та натисни кнопку ще раз.";
+            }
+        }
+    </script>
+</body>
+</html>
